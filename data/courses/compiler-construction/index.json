@@ -1,23 +1,14 @@
 {
   "id": "compiler-construction",
   "title": "Compiler Construction",
-  "description": "Learn how compilers translate high-level programming languages into machine code.",
+  "description": "A comprehensive university-level course covering the phases, theories, and practical implementations of modern compilers.",
   "category": "Computer Science",
   "lessons": [
-    {
-      "id": "lesson-1",
-      "title": "1. Introduction to Compilers",
-      "file": "lesson-1.md"
-    },
-    {
-      "id": "lesson-2",
-      "title": "2. Lexical Analysis",
-      "file": "lesson-2.md"
-    },
-    {
-      "id": "lesson-3",
-      "title": "3. Knowledge Check",
-      "file": "lesson-3.md"
-    }
+    { "id": "lesson-1", "title": "1. Introduction to Compilers", "file": "lesson-1.md" },
+    { "id": "lesson-2", "title": "2. Lexical Analysis", "file": "lesson-2.md" },
+    { "id": "lesson-3", "title": "3. Syntax Analysis", "file": "lesson-3.md" },
+    { "id": "lesson-4", "title": "4. Semantic Analysis", "file": "lesson-4.md" },
+    { "id": "lesson-5", "title": "5. Optimization", "file": "lesson-5.md" },
+    { "id": "lesson-6", "title": "6. Code Generation", "file": "lesson-6.md" }
   ]
 }

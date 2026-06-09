@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confucius LMS | My Courses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Light/Dark Mode">
+        <span id="theme-icon">☀️</span>
+    </button>
+    
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button id="mobile-menu-btn" class="icon-btn">☰</button>
+        <div class="mobile-brand">Confucius LMS</div>
+        <div style="width: 24px;"></div>
+    </div>
+    
+    <div id="mobile-overlay" class="mobile-overlay"></div>
+
+    <!-- Global Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">Confucius LMS</div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item">Dashboard</a>
+            <a href="my-courses.html" class="nav-item active">My Courses</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-content">
+        <div class="container">
+            <header class="page-header">
+                <h1>My Courses</h1>
+                <p>Pick up where you left off.</p>
+            </header>
+
+            <div id="course-grid" class="course-grid">
+                <!-- Courses injected by app.js -->
+            </div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

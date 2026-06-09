@@ -1,0 +1,9 @@
+[
+  {
+    "id": "compiler-construction",
+    "title": "Compiler Construction",
+    "description": "Learn how compilers translate high-level programming languages into machine code.",
+    "category": "Computer Science",
+    "file": "data/courses/compiler-construction/index.json"
+  }
+]

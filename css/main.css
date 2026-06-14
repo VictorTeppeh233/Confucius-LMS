@@ -108,6 +108,7 @@ a {
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.25rem;
+  touch-action: manipulation;
 }
 
 /* Theme Toggle (Mobile Position by default) */

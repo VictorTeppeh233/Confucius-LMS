@@ -2,19 +2,23 @@ let currentCourseData = null;
 let currentLessonId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
-    initMobileNav();
-    updateLearningStreak();
+    try { initTheme(); } catch (e) { console.error('Theme init failed', e); }
+    try { initMobileNav(); } catch (e) { console.error('Nav init failed', e); }
+    try { updateLearningStreak(); } catch (e) { console.error('Streak init failed', e); }
 
     const path = window.location.pathname;
-    if (path.includes('lesson.html')) {
-        initLesson();
-    } else if (path.includes('my-courses.html')) {
-        initMyCourses();
-    } else if (path.includes('catalog.html')) {
-        initCatalog();
-    } else {
-        initDashboard();
+    try {
+        if (path.includes('lesson.html')) {
+            initLesson();
+        } else if (path.includes('my-courses.html')) {
+            initMyCourses();
+        } else if (path.includes('catalog.html')) {
+            initCatalog();
+        } else {
+            initDashboard();
+        }
+    } catch (e) {
+        console.error('Page init failed', e);
     }
 });
 
@@ -27,7 +31,7 @@ function initMobileNav() {
     function closeAll() {
         if (sidebar) sidebar.classList.remove('open');
         if (overlay) overlay.classList.remove('show');
-        sessionStorage.setItem('sidebarOpen', 'false');
+        try { sessionStorage.setItem('sidebarOpen', 'false'); } catch (e) {}
     }
 
     if (overlay) overlay.addEventListener('click', closeAll);
@@ -40,22 +44,28 @@ function initMobileNav() {
     }
 
     if (menuBtn && sidebar) {
-        menuBtn.addEventListener('click', (e) => {
+        const openMenu = (e) => {
+            e.preventDefault(); // Prevent double firing if click also registers
             e.stopPropagation();
             sidebar.classList.add('open');
             if (overlay) overlay.classList.add('show');
-            sessionStorage.setItem('sidebarOpen', 'true');
-        });
+            try { sessionStorage.setItem('sidebarOpen', 'true'); } catch (e) {}
+        };
+
+        menuBtn.addEventListener('click', openMenu);
+        menuBtn.addEventListener('touchstart', openMenu, { passive: false });
     }
 
     // Persist sidebar state across page navigation on mobile
-    if (sessionStorage.getItem('sidebarOpen') === 'true') {
-        // Use a small timeout to avoid CSS transition pop on load
-        setTimeout(() => {
-            if (sidebar) sidebar.classList.add('open');
-            if (overlay) overlay.classList.add('show');
-        }, 10);
-    }
+    try {
+        if (sessionStorage.getItem('sidebarOpen') === 'true') {
+            // Use a small timeout to avoid CSS transition pop on load
+            setTimeout(() => {
+                if (sidebar) sidebar.classList.add('open');
+                if (overlay) overlay.classList.add('show');
+            }, 10);
+        }
+    } catch (e) {}
 }
 
 // --- Theme Logic ---

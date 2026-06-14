@@ -1,3 +1,10 @@
+---
+title: "6. Code Generation"
+module_id: "module-2"
+module_title: "Module 2: Back-end & Optimization"
+order: 6
+---
+
 # Lesson 6: Target Code Generation
 
 ## The Final Translation

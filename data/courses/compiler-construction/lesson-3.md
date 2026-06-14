@@ -1,3 +1,10 @@
+---
+title: "3. Syntax Analysis"
+module_id: "module-1"
+module_title: "Module 1: Front-end Analysis"
+order: 3
+---
+
 # Lesson 3: Syntax Analysis
 
 ## The Role of the Parser

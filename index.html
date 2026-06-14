@@ -27,6 +27,7 @@
         <div class="brand">Confucius LMS</div>
         <nav class="nav-menu">
             <a href="index.html" class="nav-item active">Dashboard</a>
+            <a href="catalog.html" class="nav-item">Course Catalog</a>
             <a href="my-courses.html" class="nav-item">My Courses</a>
         </nav>
     </aside>
@@ -35,12 +36,31 @@
     <main class="app-content">
         <div class="container">
             <header class="page-header">
-                <h1>Explore Courses</h1>
-                <p>Learn from structured courses created by students for students.</p>
+                <h1>Welcome Back!</h1>
+                <p>Here's an overview of your learning progress.</p>
             </header>
 
-            <div id="course-grid" class="course-grid">
-                <!-- Courses injected by app.js -->
+            <div class="metric-grid" id="dashboard-metrics">
+                <div class="metric-card">
+                    <div class="metric-label">Enrolled Courses</div>
+                    <div class="metric-value" id="metric-enrolled">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Completed Lessons</div>
+                    <div class="metric-value" id="metric-completed">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Learning Streak</div>
+                    <div class="metric-value" id="metric-streak">3 Days</div>
+                </div>
+            </div>
+
+            <div class="dashboard-section" style="margin-top: 3rem;">
+                <h2 style="margin-bottom: 1.5rem; color: var(--text-primary);">Resume Learning</h2>
+                <div id="recent-activity-container">
+                    <!-- Populated by app.js -->
+                    <p style="color: var(--text-secondary);">You have no active courses right now.</p>
+                </div>
             </div>
         </div>
     </main>

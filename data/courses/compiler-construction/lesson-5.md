@@ -1,3 +1,10 @@
+---
+title: "5. Optimization"
+module_id: "module-2"
+module_title: "Module 2: Back-end & Optimization"
+order: 5
+---
+
 # Lesson 5: Intermediate Code & Optimization
 
 ## Intermediate Representation (IR)

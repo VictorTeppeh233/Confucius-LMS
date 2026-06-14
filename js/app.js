@@ -4,12 +4,15 @@ let currentLessonId = null;
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initMobileNav();
-    
+    updateLearningStreak();
+
     const path = window.location.pathname;
     if (path.includes('lesson.html')) {
         initLesson();
     } else if (path.includes('my-courses.html')) {
         initMyCourses();
+    } else if (path.includes('catalog.html')) {
+        initCatalog();
     } else {
         initDashboard();
     }
@@ -18,33 +21,40 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- Mobile Navigation Logic ---
 function initMobileNav() {
     const menuBtn = document.getElementById('mobile-menu-btn');
-    const curriculumBtn = document.getElementById('mobile-curriculum-btn');
     const overlay = document.getElementById('mobile-overlay');
     const sidebar = document.querySelector('.sidebar');
-    const currSidebar = document.querySelector('.curriculum-sidebar');
-    
+
     function closeAll() {
-        if(sidebar) sidebar.classList.remove('open');
-        if(currSidebar) currSidebar.classList.remove('open');
-        if(overlay) overlay.classList.remove('show');
+        if (sidebar) sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('show');
+        sessionStorage.setItem('sidebarOpen', 'false');
     }
-    
+
     if (overlay) overlay.addEventListener('click', closeAll);
-    
-    if (menuBtn && sidebar) {
-        menuBtn.addEventListener('click', () => {
-            closeAll();
-            sidebar.classList.add('open');
-            overlay.classList.add('show');
+
+    if (sidebar) {
+        // Prevent clicks inside the sidebar from accidentally triggering overlay or document clicks
+        sidebar.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
     }
-    
-    if (curriculumBtn && currSidebar) {
-        curriculumBtn.addEventListener('click', () => {
-            closeAll();
-            currSidebar.classList.add('open');
-            overlay.classList.add('show');
+
+    if (menuBtn && sidebar) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.add('open');
+            if (overlay) overlay.classList.add('show');
+            sessionStorage.setItem('sidebarOpen', 'true');
         });
+    }
+
+    // Persist sidebar state across page navigation on mobile
+    if (sessionStorage.getItem('sidebarOpen') === 'true') {
+        // Use a small timeout to avoid CSS transition pop on load
+        setTimeout(() => {
+            if (sidebar) sidebar.classList.add('open');
+            if (overlay) overlay.classList.add('show');
+        }, 10);
     }
 }
 
@@ -53,14 +63,14 @@ function initTheme() {
     const btn = document.getElementById('theme-toggle');
     const icon = document.getElementById('theme-icon');
     if (!btn) return;
-    
+
     // Check local storage for saved preference
     const currentTheme = localStorage.getItem('theme');
     if (currentTheme === 'light') {
         document.body.classList.add('light-mode');
         icon.innerText = '🌙';
     }
-    
+
     btn.addEventListener('click', () => {
         document.body.classList.toggle('light-mode');
         let theme = 'dark';
@@ -83,6 +93,41 @@ function trackCourseEnrollment(courseId) {
     }
 }
 
+// --- Utility: Track Completed Lessons ---
+function trackCompletedLesson(courseId, lessonId) {
+    let completed = JSON.parse(localStorage.getItem('completedLessons')) || [];
+    const uniqueId = `${courseId}:${lessonId}`;
+    if (!completed.includes(uniqueId)) {
+        completed.push(uniqueId);
+        localStorage.setItem('completedLessons', JSON.stringify(completed));
+    }
+}
+
+// --- Utility: Track Learning Streak ---
+function updateLearningStreak() {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    let lastActiveDate = localStorage.getItem('lastActiveDate');
+    let streak = parseInt(localStorage.getItem('learningStreak')) || 0;
+
+    if (lastActiveDate !== today) {
+        if (lastActiveDate) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+            if (lastActiveDate === yesterdayStr) {
+                streak += 1;
+            } else {
+                streak = 1; // Reset streak
+            }
+        } else {
+            streak = 1; // First day
+        }
+        localStorage.setItem('lastActiveDate', today);
+        localStorage.setItem('learningStreak', streak.toString());
+    }
+}
+
 // --- My Courses ---
 async function initMyCourses() {
     const grid = document.getElementById('course-grid');
@@ -91,7 +136,7 @@ async function initMyCourses() {
     try {
         const res = await fetch('data/courses.json');
         const courses = await res.json();
-        
+
         const enrolledIds = JSON.parse(localStorage.getItem('myCourses')) || [];
         const enrolledCourses = courses.filter(c => enrolledIds.includes(c.id));
 
@@ -120,8 +165,8 @@ async function initMyCourses() {
     }
 }
 
-// --- Dashboard ---
-async function initDashboard() {
+// --- Catalog ---
+async function initCatalog() {
     const grid = document.getElementById('course-grid');
     if (!grid) return;
 
@@ -154,11 +199,55 @@ async function initDashboard() {
     }
 }
 
+// --- Dashboard ---
+async function initDashboard() {
+    const enrolledIds = JSON.parse(localStorage.getItem('myCourses')) || [];
+    const completedLessons = JSON.parse(localStorage.getItem('completedLessons')) || [];
+    const streak = parseInt(localStorage.getItem('learningStreak')) || 0;
+
+    const metricEnrolled = document.getElementById('metric-enrolled');
+    if (metricEnrolled) metricEnrolled.innerText = enrolledIds.length;
+
+    const metricCompleted = document.getElementById('metric-completed');
+    if (metricCompleted) metricCompleted.innerText = completedLessons.length;
+
+    const metricStreak = document.getElementById('metric-streak');
+    if (metricStreak) metricStreak.innerText = streak + (streak === 1 ? ' Day' : ' Days');
+
+    const recentActivityContainer = document.getElementById('recent-activity-container');
+    if (!recentActivityContainer) return;
+
+    if (enrolledIds.length === 0) {
+        recentActivityContainer.innerHTML = '<p style="color: var(--text-secondary);">You have no active courses right now. Go to the <a href="catalog.html" style="color: var(--accent-secondary);">Course Catalog</a> to get started!</p>';
+        return;
+    }
+
+    try {
+        const res = await fetch('data/courses.json');
+        const courses = await res.json();
+
+        const recentCourseId = enrolledIds[enrolledIds.length - 1];
+        const recentCourse = courses.find(c => c.id === recentCourseId);
+
+        if (recentCourse) {
+            recentActivityContainer.innerHTML = `
+                <div class="course-card" style="max-width: 400px; border-top: 5px solid var(--success);">
+                    <h3>${recentCourse.title}</h3>
+                    <p style="margin-bottom: 1rem;">Jump back in and continue learning where you left off.</p>
+                    <a href="lesson.html?id=${recentCourse.id}" class="btn btn-primary" style="background: var(--success);">Continue Learning</a>
+                </div>
+            `;
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 // --- Lesson / Course Viewer ---
 async function initLesson() {
     const urlParams = new URLSearchParams(window.location.search);
     const courseId = urlParams.get('id');
-    
+
     if (!courseId) {
         document.getElementById('loading').innerText = "Course ID not provided.";
         return;
@@ -168,20 +257,23 @@ async function initLesson() {
         const res = await fetch(`data/courses/${courseId}/index.json`);
         if (!res.ok) throw new Error('Network error');
         currentCourseData = await res.json();
-        
+
         document.getElementById('course-title-sidebar').innerText = currentCourseData.title;
         document.getElementById('loading').classList.add('hidden');
-        
+
         // Track that the user started this course
         trackCourseEnrollment(courseId);
-        
+
         renderCurriculumSidebar();
-        
+
         // Load first lesson by default
-        if (currentCourseData.lessons && currentCourseData.lessons.length > 0) {
-            loadLesson(currentCourseData.lessons[0].id);
+        if (currentCourseData.modules && currentCourseData.modules.length > 0) {
+            const firstModule = currentCourseData.modules[0];
+            if (firstModule.lessons && firstModule.lessons.length > 0) {
+                loadLesson(firstModule.lessons[0].id);
+            }
         }
-        
+
     } catch (err) {
         console.error(err);
         document.getElementById('loading').innerText = "Failed to load course.";
@@ -191,70 +283,100 @@ async function initLesson() {
 function renderCurriculumSidebar() {
     const list = document.getElementById('curriculum-list');
     list.innerHTML = '';
-    
-    currentCourseData.lessons.forEach(lesson => {
-        const item = document.createElement('div');
-        item.className = 'curriculum-item';
-        item.innerText = lesson.title;
-        item.id = `nav-${lesson.id}`;
-        
-        item.addEventListener('click', () => {
-            loadLesson(lesson.id);
+
+    currentCourseData.modules.forEach(module => {
+        const moduleGroup = document.createElement('div');
+        moduleGroup.className = 'module-group';
+
+        const moduleHeader = document.createElement('div');
+        moduleHeader.className = 'module-header open';
+        moduleHeader.innerHTML = `<span>${module.title}</span><span class="toggle-icon">▼</span>`;
+
+        const moduleLessons = document.createElement('div');
+        moduleLessons.className = 'module-lessons open';
+
+        moduleHeader.addEventListener('click', () => {
+            moduleHeader.classList.toggle('open');
+            moduleLessons.classList.toggle('open');
         });
-        
-        list.appendChild(item);
+
+        module.lessons.forEach(lesson => {
+            const item = document.createElement('div');
+            item.className = 'curriculum-item';
+            item.innerText = lesson.title;
+            item.id = `nav-${lesson.id}`;
+
+            item.addEventListener('click', () => {
+                loadLesson(lesson.id);
+            });
+
+            moduleLessons.appendChild(item);
+        });
+
+        moduleGroup.appendChild(moduleHeader);
+        moduleGroup.appendChild(moduleLessons);
+        list.appendChild(moduleGroup);
     });
 }
 
 async function loadLesson(lessonId) {
     currentLessonId = lessonId;
-    
+
     // Update active state in sidebar
     document.querySelectorAll('.curriculum-item').forEach(el => el.classList.remove('active'));
     const navItem = document.getElementById(`nav-${lessonId}`);
     if (navItem) navItem.classList.add('active');
-    
+
     // Find lesson metadata
-    const lessonData = currentCourseData.lessons.find(l => l.id === lessonId);
+    let flatLessons = [];
+    if (currentCourseData.modules) {
+        currentCourseData.modules.forEach(m => flatLessons = flatLessons.concat(m.lessons));
+    } else {
+        flatLessons = currentCourseData.lessons || []; // Fallback for old format
+    }
+    const lessonData = flatLessons.find(l => l.id === lessonId);
     if (!lessonData) return;
-    
+
     const titleEl = document.getElementById('lesson-title');
     titleEl.innerText = lessonData.title;
     titleEl.classList.remove('hidden');
-    
+
     const blocksDiv = document.getElementById('lesson-blocks');
     blocksDiv.innerHTML = '<div style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">Loading content...</div>';
-    
+
     try {
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('id');
-        
+
         const res = await fetch(`data/courses/${courseId}/${lessonData.file}`);
         if (!res.ok) throw new Error('Failed to fetch lesson content');
-        
+
         let rawText = await res.text();
         rawText = rawText.replace(/\r\n/g, '\n'); // Normalize newlines
         
+        // Strip markdown frontmatter
+        rawText = rawText.replace(/^---\n[\s\S]*?\n---\n/, '');
+
         let quizCounter = 1;
-        
+
         // Preprocess custom task-list quizzes
         const quizRegex = /\*\*Quiz:\s*(.*?)\*\*\n((?:-\s*\[[ xX]\].*?(?:\n|$))+)/gi;
-        
+
         let processedText = rawText.replace(quizRegex, (match, question, optionsBlock) => {
             const qNum = quizCounter++;
             let optionsHTML = '';
             let answerIdx = -1;
-            
+
             const optionLines = optionsBlock.trim().split('\n');
             optionLines.forEach((line, idx) => {
                 const isCorrect = line.includes('[x]') || line.includes('[X]');
                 if (isCorrect) answerIdx = idx;
-                
+
                 // Extract the text after the brackets
                 const optText = line.replace(/-\s*\[[ xX]\]\s*/, '').trim();
                 optionsHTML += `<div class="quiz-option" data-idx="${idx}">${optText}</div>`;
             });
-            
+
             return `
 <div class="quiz-container">
     <div class="quiz-header"><span class="quiz-number">Question ${qNum}</span></div>
@@ -265,11 +387,11 @@ async function loadLesson(lessonId) {
 </div>
 `;
         });
-        
+
         // Parse remaining markdown
         const htmlContent = marked.parse(processedText);
         blocksDiv.innerHTML = htmlContent;
-        
+
         // Attach click listeners for the newly injected quizzes
         const quizContainers = blocksDiv.querySelectorAll('.quiz-container');
         quizContainers.forEach(container => {
@@ -281,50 +403,53 @@ async function loadLesson(lessonId) {
                 });
             });
         });
-        
+
         // Update Next/Prev buttons
-        const lessonIndex = currentCourseData.lessons.findIndex(l => l.id === lessonId);
+        const lessonIndex = flatLessons.findIndex(l => l.id === lessonId);
         const navDiv = document.getElementById('lesson-navigation');
         const btnPrev = document.getElementById('btn-prev-lesson');
         const btnNext = document.getElementById('btn-next-lesson');
-        
+
         if (navDiv) {
             navDiv.style.display = 'flex';
-            
+
             if (lessonIndex > 0) {
                 btnPrev.disabled = false;
-                btnPrev.onclick = () => loadLesson(currentCourseData.lessons[lessonIndex - 1].id);
+                btnPrev.onclick = () => loadLesson(flatLessons[lessonIndex - 1].id);
             } else {
                 btnPrev.disabled = true;
                 btnPrev.onclick = null;
             }
-            
-            if (lessonIndex < currentCourseData.lessons.length - 1) {
+
+            if (lessonIndex < flatLessons.length - 1) {
                 btnNext.disabled = false;
                 btnNext.innerText = 'Next →';
-                btnNext.onclick = () => loadLesson(currentCourseData.lessons[lessonIndex + 1].id);
+                btnNext.onclick = () => loadLesson(flatLessons[lessonIndex + 1].id);
             } else {
                 btnNext.disabled = true;
                 btnNext.innerText = 'Finish Course';
                 btnNext.onclick = null;
             }
         }
-        
+
         // Scroll to top when changing lessons
         document.querySelector('.lesson-main-area').scrollTop = 0;
-        
-    } catch(err) {
+
+        // Track completed lesson
+        trackCompletedLesson(courseId, lessonData.id);
+
+    } catch (err) {
         console.error(err);
         blocksDiv.innerHTML = '<div style="color: var(--danger); margin: 2rem 0;">Failed to load lesson content. Check console for details.</div>';
     }
 }
 
-window.checkAnswer = function(btn, correctIdx) {
+window.checkAnswer = function (btn, correctIdx) {
     const container = btn.closest('.quiz-container');
     const selected = container.querySelector('.quiz-option.selected');
     const feedback = container.querySelector('.quiz-feedback');
     const options = container.querySelectorAll('.quiz-option');
-    
+
     if (!selected) {
         feedback.innerText = "Select an answer first.";
         feedback.className = 'quiz-feedback show error';
@@ -332,7 +457,7 @@ window.checkAnswer = function(btn, correctIdx) {
     }
 
     const selectedIdx = parseInt(selected.getAttribute('data-idx'));
-    
+
     options.forEach(opt => opt.classList.remove('correct', 'wrong'));
 
     if (selectedIdx === correctIdx) {
@@ -345,7 +470,7 @@ window.checkAnswer = function(btn, correctIdx) {
         feedback.innerText = "Incorrect. See the correct answer.";
         feedback.className = 'quiz-feedback show error';
     }
-    
+
     options.forEach(opt => opt.style.pointerEvents = 'none');
     btn.style.display = 'none';
 };

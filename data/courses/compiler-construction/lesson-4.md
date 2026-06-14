@@ -1,3 +1,10 @@
+---
+title: "4. Semantic Analysis"
+module_id: "module-1"
+module_title: "Module 1: Front-end Analysis"
+order: 4
+---
+
 # Lesson 4: Semantic Analysis
 
 ## Beyond Syntax

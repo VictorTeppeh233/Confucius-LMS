@@ -1,3 +1,10 @@
+---
+title: "2. Lexical Analysis"
+module_id: "module-1"
+module_title: "Module 1: Front-end Analysis"
+order: 2
+---
+
 # Lesson 2: Lexical Analysis
 
 ## The Role of the Lexical Analyzer

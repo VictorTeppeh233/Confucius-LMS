@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="css/main.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
+
 <body>
     <!-- Theme Toggle -->
     <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Light/Dark Mode">
@@ -18,9 +20,8 @@
     <div class="mobile-header">
         <button id="mobile-menu-btn" class="icon-btn">☰</button>
         <div class="mobile-brand">Confucius LMS</div>
-        <button id="mobile-curriculum-btn" class="icon-btn">📚</button>
     </div>
-    
+
     <div id="mobile-overlay" class="mobile-overlay"></div>
 
     <!-- Global Sidebar -->
@@ -28,32 +29,32 @@
         <div class="brand">Confucius LMS</div>
         <nav class="nav-menu">
             <a href="index.html" class="nav-item">Dashboard</a>
+            <a href="catalog.html" class="nav-item">Course Catalog</a>
             <a href="my-courses.html" class="nav-item">My Courses</a>
         </nav>
+        
+        <div class="sidebar-divider"></div>
+        
+        <div class="curriculum-header">
+            <h2 id="course-title-sidebar">Loading...</h2>
+            <p>Course Curriculum</p>
+        </div>
+        <div class="curriculum-list" id="curriculum-list">
+            <!-- Injected by app.js -->
+        </div>
     </aside>
 
     <!-- Lesson Layout -->
     <div class="lesson-layout">
-        
-        <!-- Curriculum Sidebar -->
-        <aside class="curriculum-sidebar" id="curriculum-sidebar">
-            <div class="curriculum-header">
-                <h2 id="course-title-sidebar">Loading...</h2>
-                <p>Course Curriculum</p>
-            </div>
-            <div class="curriculum-list" id="curriculum-list">
-                <!-- Injected by app.js -->
-            </div>
-        </aside>
 
         <!-- Main Content Area -->
         <main class="lesson-main-area">
             <div class="lesson-content-wrapper">
                 <div id="loading" style="text-align: center; color: var(--text-secondary);">Loading lesson data...</div>
-                
+
                 <h1 id="lesson-title" class="lesson-title hidden"></h1>
                 <div id="lesson-blocks"></div>
-                
+
                 <!-- Next / Previous Navigation -->
                 <div class="lesson-navigation" id="lesson-navigation" style="display: none;">
                     <button id="btn-prev-lesson" class="btn btn-outline">← Previous</button>
@@ -61,9 +62,10 @@
                 </div>
             </div>
         </main>
-        
+
     </div>
 
     <script src="js/app.js"></script>
 </body>
+
 </html>

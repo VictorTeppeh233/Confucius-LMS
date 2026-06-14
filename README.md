@@ -6,10 +6,10 @@ Confucius LMS operates entirely on a "Git-CMS" architecture. Course content is a
 
 ## 🚀 Features
 - **Zero Backend**: Runs purely on HTML, CSS (Mobile-First), and Vanilla JavaScript.
-- **Markdown-First Authoring**: Write courses naturally in `.md` files.
+- **Markdown-First Authoring**: Write courses naturally in `.md` files with YAML Frontmatter. No complex database required.
 - **Interactive Quizzes**: Generate auto-grading quizzes natively inside Markdown using standard checklists (`- [x]`).
 - **Dark/Light Mode**: Built-in persistent theme toggling.
-- **Mobile-First Layout**: Fully responsive, prioritizing small screens to eliminate scroll bugs, scaling up beautifully for laptops.
+- **Modern UI Layout**: Fully responsive, mobile-first design with unified sidebars, maximizing reading space on desktop.
 - **Local Enrollment Tracking**: Tracks started courses locally in the user's browser without a database.
 
 ---
@@ -32,26 +32,27 @@ Open `data/courses.json` and add your course to the global registry so the Dashb
 }
 ```
 
-### Step 3: Create the Syllabus
-Inside your new folder (`data/courses/my-new-course/`), create an `index.json` file. This tells the system how many lessons exist and what files to load.
-```json
-{
-  "id": "my-new-course",
-  "title": "My New Course",
-  "description": "A short description...",
-  "category": "Technology",
-  "lessons": [
-    {
-      "id": "lesson-1",
-      "title": "1. Welcome",
-      "file": "lesson-1.md"
-    }
-  ]
-}
-```
+### Step 3: Write the Lessons with Frontmatter
+Inside your folder, create your lesson files (e.g., `lesson-1.md`). Every lesson MUST have a YAML frontmatter block at the top to define its metadata:
 
-### Step 4: Write the Lessons (Markdown)
-Inside your folder, create your lesson files (e.g., `lesson-1.md`). You can use standard Markdown like `# Headings`, `**bold text**`, and lists.
+```yaml
+---
+title: "1. Welcome"
+module_id: "module-1"
+module_title: "Module 1: Introduction"
+order: 1
+---
+
+# Hello World!
+```
+You can use standard Markdown like `# Headings`, `**bold text**`, and lists below the frontmatter.
+
+### Step 4: Build the Curriculum
+Once your markdown files are ready, you do not need to manually create an `index.json` file. Instead, run the built-in Node script from the root directory:
+```bash
+node scripts/build.js
+```
+This script will automatically scan your frontmatter, validate your orders and titles, and instantly compile the `index.json` required by the frontend application.
 
 **To add an interactive Quiz, use the special Quiz Syntax:**
 Type a bold question starting with `Quiz:`, followed immediately by a checklist. Put an `x` in the correct box.

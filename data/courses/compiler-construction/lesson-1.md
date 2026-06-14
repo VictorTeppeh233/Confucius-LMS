@@ -1,3 +1,10 @@
+---
+title: "1. Introduction to Compilers"
+module_id: "module-1"
+module_title: "Module 1: Front-end Analysis"
+order: 1
+---
+
 # Lesson 1: Introduction to Compilers
 
 ## What is a Compiler?

@@ -10,15 +10,16 @@ Whether you are fixing a UI bug, adding a new feature to the Vanilla JS engine, 
 Confucius LMS relies on community-driven content. If you want to add a course:
 1. Fork the repository.
 2. Read the **Adding a Course** section in the `README.md`.
-3. Create your course folder in `data/courses/[your-course]/`.
-4. Write your lessons using clean Markdown (`.md`) and our special Task-List Quiz syntax.
-5. Test your course locally to ensure all links and quizzes work perfectly.
-6. Submit a Pull Request!
+3. Create your course folder in `data/courses/[your-course]/` and register it in `data/courses.json`.
+4. Write your lessons using clean Markdown (`.md`), ensuring you include the YAML Frontmatter at the top of each file.
+5. Run `node scripts/build.js` to compile and validate your curriculum into an `index.json` file.
+6. Test your course locally to ensure all links and quizzes work perfectly.
+7. Submit a Pull Request!
 
 ### 2. Developing the Core Engine
 If you want to improve the LMS engine itself (the JavaScript, CSS, or HTML):
 - **CSS Architecture**: We use a strict **Mobile-First** CSS methodology in `css/main.css`. Always style for a 320px screen by default, and use `@media (min-width: 1025px)` to add desktop enhancements.
-- **JavaScript Engine**: The core engine lives in `js/app.js`. It is completely Vanilla JS. We do not use Webpack, React, or build steps. Keep PRs lightweight, performant, and dependency-free.
+- **JavaScript Engine**: The core engine lives in `js/app.js`. It is completely Vanilla JS. We do not use React, Vue, or Webpack. The only build step required is our lightweight, dependency-free Node script (`node scripts/build.js`) which parses frontmatter. Keep PRs lightweight, performant, and simple.
 - **Markdown Parsing**: We use `marked.js` via CDN. Our custom quiz-generation logic relies on Regex interception before the Markdown is parsed. Check `app.js` if you wish to add new custom interactive components!
 
 ### 3. Submitting a Pull Request
